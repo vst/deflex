@@ -1,0 +1,21 @@
+Package: deflex
+Title: Yet Another Differential Evolution Package
+Version: 0.0.0.9000
+Authors@R: person("Vehbi Sinan", "Tunalioglu", email="vst@vsthost.com", role=c("aut", "cre"))
+Description: There are 3.5 Differential Evolution (DE) packages for R
+    as of the moment this package has been initiated. This package,
+    however, provides functional control over the selection, crossover
+    and mutation operator bringing greater flexibility for
+    experimenting with documented and custom DE strategies.
+License: GPL-3
+Depends:
+    R (>= 3.2.3)
+Imports:
+    Rcpp (>= 0.12.3)
+Suggests:
+    testthat,
+    devtools,
+    roxygen2
+LinkingTo: Rcpp
+LazyData: true
+RoxygenNote: 5.0.1
