@@ -6,8 +6,8 @@
 using namespace Rcpp;
 
 // deflex_urgent
-SEXP deflex_urgent(Rcpp::Function objective, Rcpp::Function termination, Rcpp::NumericMatrix population, Rcpp::NumericVector upper, Rcpp::NumericVector lower, double CR, double F, int x, int y, int z);
-RcppExport SEXP deflex_deflex_urgent(SEXP objectiveSEXP, SEXP terminationSEXP, SEXP populationSEXP, SEXP upperSEXP, SEXP lowerSEXP, SEXP CRSEXP, SEXP FSEXP, SEXP xSEXP, SEXP ySEXP, SEXP zSEXP) {
+SEXP deflex_urgent(Rcpp::Function objective, Rcpp::Function termination, Rcpp::NumericMatrix population, Rcpp::NumericVector upper, Rcpp::NumericVector lower, double CR, double F, int x, int y, int z, Rcpp::Function custom, double B);
+RcppExport SEXP deflex_deflex_urgent(SEXP objectiveSEXP, SEXP terminationSEXP, SEXP populationSEXP, SEXP upperSEXP, SEXP lowerSEXP, SEXP CRSEXP, SEXP FSEXP, SEXP xSEXP, SEXP ySEXP, SEXP zSEXP, SEXP customSEXP, SEXP BSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -21,7 +21,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type x(xSEXP);
     Rcpp::traits::input_parameter< int >::type y(ySEXP);
     Rcpp::traits::input_parameter< int >::type z(zSEXP);
-    __result = Rcpp::wrap(deflex_urgent(objective, termination, population, upper, lower, CR, F, x, y, z));
+    Rcpp::traits::input_parameter< Rcpp::Function >::type custom(customSEXP);
+    Rcpp::traits::input_parameter< double >::type B(BSEXP);
+    __result = Rcpp::wrap(deflex_urgent(objective, termination, population, upper, lower, CR, F, x, y, z, custom, B));
     return __result;
 END_RCPP
 }

@@ -28,7 +28,9 @@ SEXP deflex_urgent (Rcpp::Function objective,
                     double F,
                     int x,
                     int y,
-                    int z) {
+                    int z,
+                    Rcpp::Function custom,
+                    double B) {
 
   //////////////
   // PREAMBLE //
@@ -101,7 +103,7 @@ SEXP deflex_urgent (Rcpp::Function objective,
       trial = bounceBack(trial, upper, lower);
 
       // Compute the score for the candidate:
-      const double score = evaluateObjective(objective, trial);
+      double score = evaluateObjective(objective, trial);
 
       // Check the score against the old one:
       if (score < scores[c]) {
@@ -112,11 +114,39 @@ SEXP deflex_urgent (Rcpp::Function objective,
         newScores[c] = score;
       }
       else {
-        // Nope, keep the old candidate:
-        newPopulation(c, Rcpp::_) = population.row(c);
+        // OK, here we do something funny! We will use a custom
+        // operator if its probability is hit. First define if we are
+        // hitting it.
+        const double flag = unif_rand() < B;
 
-        // Keep the old score:
-        newScores[c] = scores[c];
+        // Check if we are using the custom operator:
+        if (flag) {
+          // Get a new trial from the custom genetic operator:
+          trial = custom(population, scores, population.row(c), trial);
+
+          // Trim:
+          trial = bounceBack(trial, upper, lower);
+
+          // Compute the score:
+          score = evaluateObjective(objective, trial);
+        }
+
+        // OK, now check if we have a candidate from the custom
+        // operator if any and it is better:
+        if (flag && score < scores[c]) {
+          // Yes, save the new trial:
+          newPopulation(c, Rcpp::_) = trial;
+
+          // Keep the score from the custom operator:
+          newScores[c] = score;
+        }
+        else {
+          // Nope, keep the old candidate:
+          newPopulation(c, Rcpp::_) = population.row(c);
+
+          // Keep the old score:
+          newScores[c] = scores[c];
+        }
       }
     }
 
