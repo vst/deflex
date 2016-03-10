@@ -115,4 +115,25 @@ inline Rcpp::NumericVector trimVector (Rcpp::NumericVector vector, const Rcpp::N
   // Done, return:
   return vector;
 }
+
+
+/**
+ * Trims a vector for the upper and lower limits by bouncing back.
+ *
+ * @param vector The vector to be trimmed.
+ * @param upper  Upper limits.
+ * @param lower  Lower limits.
+ * @return Trimmed vector with bouncing back.
+ */
+inline Rcpp::NumericVector bounceBack (Rcpp::NumericVector vector, const Rcpp::NumericVector upper, const Rcpp::NumericVector lower) {
+  // First, trim for the upper:
+  vector = ifelse(vector > upper, upper - (unif_rand() * (upper - lower)), vector);
+
+  // Now, trim for the lower:
+  vector = ifelse(vector < lower, lower + (unif_rand() * (upper - lower)), vector);
+
+  // Done, return:
+  return vector;
+}
+
 #endif

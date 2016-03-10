@@ -96,7 +96,9 @@ SEXP deflex_urgent (Rcpp::Function objective,
       }
 
       // Trim:
-      trial = trimVector(trial, upper, lower);
+      //trial = trimVector(trial, upper, lower);
+      // Bounce back:
+      trial = bounceBack(trial, upper, lower);
 
       // Compute the score for the candidate:
       const double score = evaluateObjective(objective, trial);
