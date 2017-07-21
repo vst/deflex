@@ -71,7 +71,23 @@ inline int _runifIntWrapper (const int n) {
  * @param candidate The candidate.
  * @return The objective score.
  */
-inline double evaluateObjective (const Rcpp::Function objective, const Rcpp::NumericVector candidate) {
+inline double evaluateObjective (const Rcpp::NumericVector candidate,
+                                 const Rcpp::Function objective,
+                                 const Rcpp::NumericVector lower,
+                                 const Rcpp::NumericVector upper) {
+  // Iterate over candidate elements and make sure that we are between
+  // boundaries:
+  for (int i = 0; i < candidate.size(); i++) {
+    // Get the element:
+    const double element = candidate[i];
+
+    // Check the element against lower and upper boundaries:
+    if (element < lower[i] || element > upper[i]) {
+      return std::numeric_limits<double>::infinity();
+    }
+  }
+
+  // Done, return the objective function score:
   return Rcpp::as<double>(objective(candidate));
 }
 
@@ -83,13 +99,16 @@ inline double evaluateObjective (const Rcpp::Function objective, const Rcpp::Num
  * @param population The population.
  * @return The objective scores.
  */
-inline Rcpp::NumericVector evaluateObjectives (const Rcpp::Function objective, const Rcpp::NumericMatrix population) {
+inline Rcpp::NumericVector evaluateObjectives (const Rcpp::NumericMatrix population,
+                                               const Rcpp::Function objective,
+                                               const Rcpp::NumericVector lower,
+                                               const Rcpp::NumericVector upper) {
   // Create a vector of scores:
   Rcpp::NumericVector scores(population.nrow());
 
   // Iterate over the population and calculate scores:
   for (int i = 0; i < population.nrow(); i++) {
-    scores[i] = evaluateObjective(objective, population.row(i));
+    scores[i] = evaluateObjective(population.row(i), objective, lower, upper);
   }
 
   // Done, return scores:
