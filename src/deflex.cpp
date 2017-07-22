@@ -2,6 +2,22 @@
 #include <Rcpp.h>
 #include "utils.h"
 
+double evaluate(SEXP par, SEXP fcall, SEXP env) {
+  SEXP sexp_fvec, fn;
+  double f_result;
+
+  PROTECT(fn = Rf_lang2(fcall, par));
+
+  PROTECT(sexp_fvec = Rf_eval(fn, env));
+  f_result = REAL(sexp_fvec)[0];
+
+  if(ISNAN(f_result)) {
+    Rf_error("NaN value of objective function! \nPerhaps adjust the bounds.");
+  }
+
+  UNPROTECT(2);
+  return(f_result);
+}
 
 /**
  * Provides a simple DE routine.
@@ -58,6 +74,7 @@ SEXP deflex_strategy3 (Rcpp::Function objective,
   Rcpp::List scoresList;
   Rcpp::List bestScoresList;
   Rcpp::List flagsList;
+  Rcpp::Environment rhoenv = Rcpp::Environment::global_env();
 
   // Keep the initial population and scores:
   populationsList.push_back(initpop);
@@ -130,10 +147,6 @@ SEXP deflex_strategy3 (Rcpp::Function objective,
     Rcpp::NumericVector oldScores = scoresList[scoresList.size() - 1];
     Rcpp::NumericVector newScores(Rcpp::clone(oldScores));
 
-    //     4. Initialize the new population validity flags vector.
-    Rcpp::NumericVector oldFlags = flagsList[flagsList.size() - 1];
-    Rcpp::NumericVector newFlags(Rcpp::clone(oldFlags));
-
     // 3. Iterate over each candidate in the last population.
     for (int candidate = 0; candidate < newPopulation.rows(); candidate++) {
       //     1. Adjust CR and F if adaptation speed is in use.
@@ -159,6 +172,7 @@ SEXP deflex_strategy3 (Rcpp::Function objective,
       Rcpp::NumericVector trial(Rcpp::clone(oldCandidate));
 
       //     3. Pick 2 random candidates from the last population (ideally excluding the current candidate).
+      // TODO: XXX
       Rcpp::IntegerVector idx = Rcpp::seq_len(newPopulation.rows());
       Rcpp::IntegerVector tidx = idx[idx != candidate];
       Rcpp::IntegerVector ridx = Rcpp::sample(tidx, 2);
@@ -169,8 +183,11 @@ SEXP deflex_strategy3 (Rcpp::Function objective,
 
       //     5. Iterate over each element in the trial and modify it (Actual work)
       do {
+        // Get a random:
+        const double rr = Rf_runif(0, 1);
+
         // Get the jitter:
-        const double jitter = (Rf_runif(0, 1) * jf) + f;
+        const double jitter = (rr * jf) + f;
 
         // Get the respective element of the best candidate:
         const double bestest = bestMember[j];
@@ -181,6 +198,13 @@ SEXP deflex_strategy3 (Rcpp::Function objective,
 
         // Override trial:
         trial[j] = bestest + jitter * (random1 - random2);
+
+        // Check for a weird case that we get NaN:
+        if(ISNAN(trial[j])) {
+          // TODO: Something funny here:
+          // Rcpp::Rcout << bestest << " " << jitter << "(" << jf << ", " << f <<  ", " << rr << ")" << " " <<  random1 << " " << random2 << std::endl;
+          trial[j] = (upper[j] + lower[j]) / 2.0;
+        }
 
         // Move to the next element:
         j = (j + 1) % dimension;
@@ -217,9 +241,9 @@ SEXP deflex_strategy3 (Rcpp::Function objective,
 
       //     8. Assess the trial and take actions: Compute the score of the trial.
       //         1. Compute the trial score.
-
-      Rcpp::NumericVector trialScoreV = objective(trial);
-      double trialScore = trialScoreV[0];
+      //Rcpp::NumericVector trialScoreV = objective(trial);
+      //double trialScore = trialScoreV[0];
+      double trialScore = evaluate(trial, objective, rhoenv);
 
       //         2. If trial score is not better than the previous score, keep the new population candidate same as last
       //            population candidate, and mark the new population candidate index as "unchanged".
@@ -230,7 +254,6 @@ SEXP deflex_strategy3 (Rcpp::Function objective,
       if (trialScore < oldScores[candidate]) {
         newPopulation(candidate, Rcpp::_) = trial;
         newScores[candidate] = trialScore;
-        newFlags = true;
 
         goodCR += cr / ++goodNPCount;
         goodF += f;
@@ -242,10 +265,6 @@ SEXP deflex_strategy3 (Rcpp::Function objective,
           newBestMemberScore = trialScore;
         }
       }
-      else {
-        newFlags = false;
-      }
-
     }
     // 4. Epilogue:
     //     1. Update meanCR and meanF if adaptation speed is in use.
