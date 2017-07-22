@@ -114,7 +114,7 @@ SEXP deflex_strategy3 (Rcpp::Function objective,
     // 5. Mark the finishing of new generation.
 
     // 1. Mark the beginning of new generation
-    Rcpp::Rcout << "Generation Start: " << generation << std::endl;
+    // Rcpp::Rcout << "Generation Start: " << generation << std::endl;
 
     // 2. Preamble: Initialize temporary generation data:
     //     1. Get the current best member from the last population.
@@ -264,7 +264,7 @@ SEXP deflex_strategy3 (Rcpp::Function objective,
     bestScoresList.push_back(newBestMemberScore);
 
     // 5. Mark the finishing of new generation.
-    Rcpp::Rcout << "Generation End  : " << generation << std::endl;
+    // Rcpp::Rcout << "Generation End  : " << generation << std::endl;
   }
 
 
@@ -275,7 +275,9 @@ SEXP deflex_strategy3 (Rcpp::Function objective,
                             Rcpp::_["bestmembers"] = bestMembersList,
                             Rcpp::_["bestscores"] = bestScoresList,
                             Rcpp::_["popscores"] = scoresList,
-                            Rcpp::_["popflags"] = flagsList
+                            Rcpp::_["popflags"] = flagsList,
+                            Rcpp::_["bestmember"] = bestMembersList[bestMembersList.size() - 1],
+                            Rcpp::_["bestscore"] = bestScoresList[bestScoresList.size() - 1]
                             );
 
   // return Rcpp::List::create(Rcpp::_["populations"] = populationsList,
