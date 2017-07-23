@@ -74,7 +74,7 @@ SEXP deflex_strategy3 (Rcpp::Function objective,
   Rcpp::List scoresList;
   Rcpp::List bestScoresList;
   Rcpp::List flagsList;
-  Rcpp::Environment rhoenv = Rcpp::Environment::global_env();
+  Rcpp::Environment rhoenv = Rcpp::new_env();
 
   // Keep the initial population and scores:
   populationsList.push_back(initpop);
