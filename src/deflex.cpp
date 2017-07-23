@@ -1,23 +1,8 @@
 #include <vector>
 #include <Rcpp.h>
 #include "utils.h"
+#include "evaluate.h"
 
-double evaluate(SEXP par, SEXP fcall, SEXP env) {
-  SEXP sexp_fvec, fn;
-  double f_result;
-
-  PROTECT(fn = Rf_lang2(fcall, par));
-
-  PROTECT(sexp_fvec = Rf_eval(fn, env));
-  f_result = REAL(sexp_fvec)[0];
-
-  if(ISNAN(f_result)) {
-    Rf_error("NaN value of objective function! \nPerhaps adjust the bounds.");
-  }
-
-  UNPROTECT(2);
-  return(f_result);
-}
 
 /**
  * Provides a simple DE routine.
@@ -58,7 +43,7 @@ SEXP deflex_strategy3 (Rcpp::Function objective,
   const int popsize = initpop.nrow();
 
   // Create a base vector of random vector indices to be used later:
-  const std::vector<int> indexVector = createSequence(0, initpop.nrow());
+  Rcpp::IntegerVector indexVector = Rcpp::wrap(createSequence(0, initpop.nrow()));
 
   // Initialize the scores vector:
   Rcpp::NumericVector scores = evaluateObjectives(initpop, objective, lower, upper);
@@ -74,7 +59,7 @@ SEXP deflex_strategy3 (Rcpp::Function objective,
   Rcpp::List scoresList;
   Rcpp::List bestScoresList;
   Rcpp::List flagsList;
-  Rcpp::Environment rhoenv = Rcpp::new_env();
+  Rcpp::Environment rhoenv = Rcpp::Environment::empty_env();
 
   // Keep the initial population and scores:
   populationsList.push_back(initpop);
@@ -173,8 +158,7 @@ SEXP deflex_strategy3 (Rcpp::Function objective,
 
       //     3. Pick 2 random candidates from the last population (ideally excluding the current candidate).
       // TODO: XXX
-      Rcpp::IntegerVector idx = Rcpp::seq_len(newPopulation.rows());
-      Rcpp::IntegerVector tidx = idx[idx != candidate];
+      Rcpp::IntegerVector tidx = indexVector[indexVector != candidate];
       Rcpp::IntegerVector ridx = Rcpp::sample(tidx, 2);
 
       //     4. Pick which element to start with for the trial.
@@ -201,7 +185,12 @@ SEXP deflex_strategy3 (Rcpp::Function objective,
 
         // Check for a weird case that we get NaN:
         if(ISNAN(trial[j])) {
-          // TODO: Something funny here:
+          // TODO: Something funny here.
+          //
+          // It was due to the tidx statement and underlying
+          // indexVector which was based on 1 previously. Shouldn't
+          // repeat again, yet just on case for now.
+          //
           // Rcpp::Rcout << bestest << " " << jitter << "(" << jf << ", " << f <<  ", " << rr << ")" << " " <<  random1 << " " << random2 << std::endl;
           trial[j] = (upper[j] + lower[j]) / 2.0;
         }
@@ -241,8 +230,7 @@ SEXP deflex_strategy3 (Rcpp::Function objective,
 
       //     8. Assess the trial and take actions: Compute the score of the trial.
       //         1. Compute the trial score.
-      //Rcpp::NumericVector trialScoreV = objective(trial);
-      //double trialScore = trialScoreV[0];
+      //double trialScore = Rcpp::as<double>(objective(trial));
       double trialScore = evaluate(trial, objective, rhoenv);
 
       //         2. If trial score is not better than the previous score, keep the new population candidate same as last

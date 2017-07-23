@@ -64,59 +64,6 @@ inline int _runifIntWrapper (const int n) {
 
 
 /**
- * An auxiliary function to evaluate the objective score over the
- * provided candidate.
- *
- * @param objective The objective function.
- * @param candidate The candidate.
- * @return The objective score.
- */
-inline double evaluateObjective (const Rcpp::NumericVector candidate,
-                                 const Rcpp::Function objective,
-                                 const Rcpp::NumericVector lower,
-                                 const Rcpp::NumericVector upper) {
-  // Iterate over candidate elements and make sure that we are between
-  // boundaries:
-  for (int i = 0; i < candidate.size(); i++) {
-    // Get the element:
-    const double element = candidate[i];
-
-    // Check the element against lower and upper boundaries:
-    if (element < lower[i] || element > upper[i]) {
-      return std::numeric_limits<double>::infinity();
-    }
-  }
-
-  // Done, return the objective function score:
-  return Rcpp::as<double>(objective(candidate));
-}
-
-/**
- * An auxiliary function to evaluate the objective score over
- * population.
- *
- * @param objective  The objective function.
- * @param population The population.
- * @return The objective scores.
- */
-inline Rcpp::NumericVector evaluateObjectives (const Rcpp::NumericMatrix population,
-                                               const Rcpp::Function objective,
-                                               const Rcpp::NumericVector lower,
-                                               const Rcpp::NumericVector upper) {
-  // Create a vector of scores:
-  Rcpp::NumericVector scores(population.nrow());
-
-  // Iterate over the population and calculate scores:
-  for (int i = 0; i < population.nrow(); i++) {
-    scores[i] = evaluateObjective(population.row(i), objective, lower, upper);
-  }
-
-  // Done, return scores:
-  return scores;
-}
-
-
-/**
  * Trims a vector for the upper and lower limits.
  *
  * @param vector The vector to be trimmed.
@@ -154,5 +101,4 @@ inline Rcpp::NumericVector bounceBack (Rcpp::NumericVector vector, const Rcpp::N
   // Done, return:
   return vector;
 }
-
 #endif
