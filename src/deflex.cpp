@@ -4,6 +4,48 @@
 #include "evaluate.h"
 
 
+inline double roundDoubleDownTo(double value, double step) {
+    if (step == 0) {
+        return value;
+    }
+    else {
+        return floor(value / step) * step;
+    }
+}
+
+inline double roundDoubleUpTo(double value, double step) {
+    if (step == 0) {
+        return value;
+    }
+    else {
+        return ceil(value / step) * step;
+    }
+}
+
+inline double roundToClosest (double value, double step) {
+    double down = roundDoubleDownTo(value, step);
+    double up = roundDoubleUpTo(value, step);
+    if (std::abs(value - down) < std::abs(value - up)) {
+        return down;
+    }
+    return up;
+}
+
+
+/**
+ * Provides precision adjustment.
+ *
+ * @param vector The vector to be adjusted.
+ * @param step Precision step.
+ * @return Adjusted vector.
+ */
+inline Rcpp::NumericVector precisionAdjustment (Rcpp::NumericVector vector, double step) {
+    for (int i = 0; i < vector.size(); i++) {
+        vector(i) = roundToClosest(vector(i), step);
+    }
+  return vector;
+}
+
 /**
  * Provides a simple DE routine.
  *
@@ -203,7 +245,9 @@ SEXP deflex_strategy3 (Rcpp::Function objective,
       } while (Rf_runif(0, 1) < cr && k < dimension);
 
       //     6. Apply precision to each element in the trial, if "precision adjustment" is in use.
-      // TODO :: Do this.
+      //Rcpp::Rcout << precision <<  "  " << trial << std::endl;
+      precisionAdjustment(trial, precision);
+      //Rcpp::Rcout << "HEBELE" <<  "  " << trial << std::endl;
 
       //     7. Apply limits to each element in the trial, in case that we have violated.
       for (int i = 0; i < trial.size(); i++) {
