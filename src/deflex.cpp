@@ -245,12 +245,13 @@ SEXP deflex_strategy3 (Rcpp::Function objective,
       } while (Rf_runif(0, 1) < cr && k < dimension);
 
       //     6. Apply precision to each element in the trial, if "precision adjustment" is in use.
-      //Rcpp::Rcout << precision <<  "  " << trial << std::endl;
-      precisionAdjustment(trial, precision);
-      //Rcpp::Rcout << "HEBELE" <<  "  " << trial << std::endl;
-
       //     7. Apply limits to each element in the trial, in case that we have violated.
       for (int i = 0; i < trial.size(); i++) {
+        // Adjust as per precision:
+        if (precision != 0) {
+            trial[i] = roundToClosest(trial[i], precision);
+        }
+
         // Check lower limit:
         if (trial[i] < lower[i]) {
           if (bounceBack) {
