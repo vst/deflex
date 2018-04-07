@@ -46,7 +46,8 @@ inline double evaluateObjective (const Rcpp::NumericVector candidate,
     const double element = candidate[i];
 
     // Check the element against lower and upper boundaries:
-    if (element < lower[i] || element > upper[i]) {
+    // TODO: DANGER! We are giving a tolerance to check the value against the limits.
+    if ((element + 0.00000001) < lower[i] || (element - 0.00000001) > upper[i]) {
       return std::numeric_limits<double>::infinity();
     }
   }

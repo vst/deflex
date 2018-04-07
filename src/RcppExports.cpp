@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // deflex_strategy3
 SEXP deflex_strategy3(Rcpp::Function objective, Rcpp::NumericVector lower, Rcpp::NumericVector upper, Rcpp::NumericMatrix initpop, int iterations, double cr, double f, double c, double jf, bool bounceBack, double precision);
-RcppExport SEXP deflex_deflex_strategy3(SEXP objectiveSEXP, SEXP lowerSEXP, SEXP upperSEXP, SEXP initpopSEXP, SEXP iterationsSEXP, SEXP crSEXP, SEXP fSEXP, SEXP cSEXP, SEXP jfSEXP, SEXP bounceBackSEXP, SEXP precisionSEXP) {
+RcppExport SEXP _deflex_deflex_strategy3(SEXP objectiveSEXP, SEXP lowerSEXP, SEXP upperSEXP, SEXP initpopSEXP, SEXP iterationsSEXP, SEXP crSEXP, SEXP fSEXP, SEXP cSEXP, SEXP jfSEXP, SEXP bounceBackSEXP, SEXP precisionSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -25,4 +25,14 @@ BEGIN_RCPP
     rcpp_result_gen = Rcpp::wrap(deflex_strategy3(objective, lower, upper, initpop, iterations, cr, f, c, jf, bounceBack, precision));
     return rcpp_result_gen;
 END_RCPP
+}
+
+static const R_CallMethodDef CallEntries[] = {
+    {"_deflex_deflex_strategy3", (DL_FUNC) &_deflex_deflex_strategy3, 11},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_deflex(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
 }
