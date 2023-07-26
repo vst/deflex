@@ -49,18 +49,18 @@ inline Rcpp::NumericVector precisionAdjustment (Rcpp::NumericVector vector, doub
 /**
  * Provides a simple DE routine.
  *
- * @param objective  TODO
- * @param lower      TODO
- * @param upper      TODO
- * @param initpop    TODO
- * @param iterations TODO
- * @param cr         TODO
- * @param f          TODO
- * @param c          TODO
- * @param jf         TODO
- * @param bb         TODO
- * @param precision  TODO
- * @return TODO
+ * @param objective  Objective function.
+ * @param lower      Lower-bounds for each parameter to be optimised.
+ * @param upper      Upper-bounds for each parameter to be optimised.
+ * @param initpop    Initial population.
+ * @param iterations Number of iterations.
+ * @param cr         Crossover probability from interval `[0, 1]`, for example `0.5`.
+ * @param f          Differential weighting factor from interval `[0, 2]`, for example `0.8`.
+ * @param c          Crossover adaptation speed from interval `(0, 1]`, for example `0.5`.
+ * @param jf         Jitter factor, for example `0.10`.
+ * @param bounceBack Whether to bounce back from boundaries or not.
+ * @param precision  Precision as a positive number whereby 0 disables it.
+ * @return Optimisation result.
  */
 // [[Rcpp::export]]
 SEXP deflex_strategy3 (Rcpp::Function objective,
@@ -178,7 +178,7 @@ SEXP deflex_strategy3 (Rcpp::Function objective,
     for (int candidate = 0; candidate < newPopulation.rows(); candidate++) {
       //     1. Adjust CR and F if adaptation speed is in use.
       if (c > 0) {
-        // Yes. We will not adjust the CR first:
+        // Yes. We will now adjust the CR first:
         cr = Rf_rnorm(meanCR, 0.1);
 
         // Check and reset CR:

@@ -1,4 +1,7 @@
+^.lintr
 ^cran-comments.md
-^tmp/
-^.idea/
-^deflex.iml
+^default.nix
+^flake.lock
+^flake.nix
+^nix
+^tmp

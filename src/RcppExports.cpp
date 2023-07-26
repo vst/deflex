@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // deflex_strategy3
 SEXP deflex_strategy3(Rcpp::Function objective, Rcpp::NumericVector lower, Rcpp::NumericVector upper, Rcpp::NumericMatrix initpop, int iterations, double cr, double f, double c, double jf, bool bounceBack, double precision);
 RcppExport SEXP _deflex_deflex_strategy3(SEXP objectiveSEXP, SEXP lowerSEXP, SEXP upperSEXP, SEXP initpopSEXP, SEXP iterationsSEXP, SEXP crSEXP, SEXP fSEXP, SEXP cSEXP, SEXP jfSEXP, SEXP bounceBackSEXP, SEXP precisionSEXP) {
