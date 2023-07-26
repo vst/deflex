@@ -1,0 +1,14 @@
+{
+    "nixpkgs": {
+        "branch": "release-23.05",
+        "description": "Nix Packages collection",
+        "homepage": null,
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "ccca29bdb4e253d08b96ec0ab5d2255bfdbd63dd",
+        "sha256": "07g4j7ac1bs3dn29g62g8v0dwszs74mlixc8a2r5sqdajpfal5sv",
+        "type": "tarball",
+        "url": "https://github.com/NixOS/nixpkgs/archive/ccca29bdb4e253d08b96ec0ab5d2255bfdbd63dd.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    }
+}
