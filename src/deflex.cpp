@@ -78,6 +78,9 @@ SEXP deflex_strategy3 (Rcpp::Function objective,
   // PREAMBLE //
   //////////////
 
+  // Before we start, suspend RNG synchronisation:
+  Rcpp::SuspendRNGSynchronizationScope rngScope;
+
   // First, get the problem dimension:
   const int dimension = upper.size();
 
